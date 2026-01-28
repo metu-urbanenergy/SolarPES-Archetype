@@ -4,7 +4,7 @@
 // ============================================
 
 // Google Apps Script URL - UPDATE THIS!
-const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8t5IYTY-QRzm_T-YTVUyvCbvjL91UrhBdW9KL2qSaB5tsfkQFDpyIyw_iuCZEUBVy/exec';
 
 // ============================================
 // UI UPDATE FUNCTIONS
