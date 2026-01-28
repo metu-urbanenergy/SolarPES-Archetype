@@ -4,7 +4,7 @@
 // ============================================
 
 // Google Apps Script URL - UPDATE THIS!
-const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxskHDqe1GolSyiMwTXW4nsWzkKFpSyfkBfEPWRM1d6mpxD7Arl8R6klF8gIZiud23p/exec';
 
 // ============================================
 // MODAL FUNCTIONS
