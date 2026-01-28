@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="5-Katman Arketip Sınıflandırma Sistemi">
+    <title>Solar-PES | Okul Binası Arketip Sınıflandırma</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🏫 SOLAR-PES</h1>
+                <p>Okul Binası Enerji Arketip Sınıflandırma Sistemi</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2>Okul Binası Enerji Arketip Sistemi</h2>
+            <p class="subtitle">Binanızın özelliklerini girin, benzersiz Building ID'si ve enerji performans değerlendirmesi alın</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="grid">
+                <!-- Form Column -->
+                <div class="form-section">
+                    <div class="card">
+                        <h3>📋 Bina Bilgileri</h3>
+                        <form id="buildingForm">
+                            
+                            <!-- GENEL BİLGİLER -->
+                            <div class="form-group">
+                                <label for="buildingName">Bina/Okul Adı *</label>
+                                <input type="text" id="buildingName" name="buildingName" required 
+                                       placeholder="Örn: Atatürk Lisesi">
+                            </div>
+
+                            <!-- LAYER 1: CLIMATE -->
+                            <div class="section-header layer-1">
+                                <h4>🌡️ İklim Bölgesi (TS 825)</h4>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="city">Şehir *</label>
+                                    <select id="city" name="city" required>
+                                        <option value="">Seçiniz</option>
+                                        <optgroup label="Bölge 1 - Sıcak">
+                                            <option value="Antalya">Antalya</option>
+                                            <option value="Adana">Adana</option>
+                                            <option value="Mersin">Mersin</option>
+                                            <option value="Hatay">Hatay</option>
+                                        </optgroup>
+                                        <optgroup label="Bölge 2-3 - Ilıman">
+                                            <option value="İstanbul">İstanbul</option>
+                                            <option value="İzmir">İzmir</option>
+                                            <option value="Bursa">Bursa</option>
+                                            <option value="Samsun">Samsun</option>
+                                            <option value="Trabzon">Trabzon</option>
+                                        </optgroup>
+                                        <optgroup label="Bölge 4 - Soğuk">
+                                            <option value="Ankara">Ankara</option>
+                                            <option value="Konya">Konya</option>
+                                            <option value="Kayseri">Kayseri</option>
+                                            <option value="Sivas">Sivas</option>
+                                            <option value="Malatya">Malatya</option>
+                                        </optgroup>
+                                        <optgroup label="Bölge 5-6 - Çok Soğuk">
+                                            <option value="Erzurum">Erzurum</option>
+                                            <option value="Kars">Kars</option>
+                                            <option value="Van">Van</option>
+                                            <option value="Ağrı">Ağrı</option>
+                                        </optgroup>
+                                    </select>
+                                    <small>İklim bölgesi otomatik belirlenecek</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="district">İlçe</label>
+                                    <input type="text" id="district" name="district" 
+                                           placeholder="Örn: Çankaya">
+                                </div>
+                            </div>
+
+                            <!-- LAYER 2: MORPHOLOGY -->
+                            <div class="section-header layer-2">
+                                <h4>📐 Bina Formu ve Özellikleri</h4>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="morphology">Bina Plan Tipi *</label>
+                                <select id="morphology" name="morphology" required>
+                                    <option value="">Seçiniz</option>
+                                    <option value="Doğrusal">🏬 Doğrusal / Koridor Tipi</option>
+                                    <option value="Tek Blok">🏢 Kompakt / Blok Tipi</option>
+                                    <option value="Avlu">🏛️ Avlulu / U-L-H Tipi</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="windowType">Pencere Konfigürasyonu *</label>
+                                <select id="windowType" name="windowType" required>
+                                    <option value="">Seçiniz</option>
+                                    <option value="Tek Cam">Standart Pencereler</option>
+                                    <option value="Çift Cam">Şerit Pencereler</option>
+                                    <option value="PVC">Tam Cam Cephe</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="numFloors">Kat Sayısı *</label>
+                                    <input type="number" id="numFloors" name="numFloors" required 
+                                           placeholder="Örn: 3" min="1" max="15">
+                                    <small>1-3 kat: Alçak | 4+ kat: Yüksek</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="floorArea">İnşaat Alanı (m²) *</label>
+                                    <input type="number" id="floorArea" name="floorArea" required 
+                                           placeholder="Örn: 3000" min="100" step="100">
+                                    <small>&lt;2k: Küçük | 2-6k: Orta | 6k+: Büyük</small>
+                                </div>
+                            </div>
+
+                            <!-- LAYER 3: ENVELOPE -->
+                            <div class="section-header layer-3">
+                                <h4>🧱 Yapı Özellikleri</h4>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="buildingYear">İnşa Yılı *</label>
+                                    <input type="number" id="buildingYear" name="buildingYear" required 
+                                           placeholder="Örn: 2010" min="1950" max="2026">
+                                    <small>&lt;2008: Eski | 2008-23: Standart | 2024+: Yeni</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="renovationYear">Son Tadilat Yılı</label>
+                                    <input type="number" id="renovationYear" name="renovationYear" 
+                                           placeholder="Varsa" min="1950" max="2026">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Yalıtım Durumu *</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="insulation" value="Var" required>
+                                        <span>✅ Var</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="insulation" value="Yok">
+                                        <span>❌ Yok</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="insulation" value="Bilinmiyor">
+                                        <span>❓ Bilinmiyor</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="wallType">Yapı Malzemesi *</label>
+                                <select id="wallType" name="wallType" required>
+                                    <option value="">Seçiniz</option>
+                                    <option value="Beton">Betonarme</option>
+                                    <option value="Çelik">Çelik / Prefabrik</option>
+                                </select>
+                            </div>
+
+                            <!-- LAYER 4: FUNCTION -->
+                            <div class="section-header layer-4">
+                                <h4>🎓 Fonksiyon ve Kullanım</h4>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="function">Okul Türü *</label>
+                                    <select id="function" name="function" required>
+                                        <option value="">Seçiniz</option>
+                                        <option value="İlkokul">İlkokul</option>
+                                        <option value="Ortaokul">Ortaokul</option>
+                                        <option value="Lise">Lise</option>
+                                        <option value="Yurt">Öğrenci Yurdu</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="numStudents">Öğrenci Sayısı</label>
+                                    <input type="number" id="numStudents" name="numStudents" 
+                                           placeholder="Örn: 500" min="0">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="operatingDays">Yıllık Çalışma Günü</label>
+                                <input type="number" id="operatingDays" name="operatingDays" 
+                                       placeholder="Gündüzlü: 180 / Yatılı: 280" min="0" max="365">
+                            </div>
+
+                            <!-- LAYER 5: SYSTEMS -->
+                            <div class="section-header layer-5">
+                                <h4>⚙️ Enerji Sistemleri</h4>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fuelType">Isıtma Yakıt Türü *</label>
+                                    <select id="fuelType" name="fuelType" required>
+                                        <option value="">Seçiniz</option>
+                                        <option value="Doğalgaz">Doğalgaz</option>
+                                        <option value="Isı Pompası">Isı Pompası</option>
+                                        <option value="Elektrik">Elektrik</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Soğutma Sistemi *</label>
+                                    <div class="radio-group">
+                                        <label class="radio-label">
+                                            <input type="radio" name="cooling" value="Yok" required>
+                                            <span>Yok</span>
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="cooling" value="Var">
+                                            <span>Var</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- YENİLENEBİLİR ENERJİ -->
+                            <div class="section-header">
+                                <h4>☀️ Yenilenebilir Enerji</h4>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="solarPV" id="solarPV">
+                                    <span>☀️ Güneş Paneli (PV) Var</span>
+                                </label>
+                            </div>
+
+                            <div class="form-group" id="pvCapacityGroup" style="display: none;">
+                                <label for="pvCapacity">PV Kurulu Gücü (kWp)</label>
+                                <input type="number" id="pvCapacity" name="pvCapacity" 
+                                       placeholder="Örn: 50" min="0" step="0.1">
+                            </div>
+
+                            <!-- İLETİŞİM -->
+                            <div class="section-header">
+                                <h4>📧 İletişim Bilgileri (Opsiyonel)</h4>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactName">İsim Soyisim</label>
+                                <input type="text" id="contactName" name="contactName" 
+                                       placeholder="Örn: Ahmet Yılmaz">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">E-posta</label>
+                                <input type="email" id="email" name="email" 
+                                       placeholder="ornek@email.com">
+                                <small>Sonuçları size göndermek için</small>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn-primary" id="submitBtn">
+                                🚀 Building ID Oluştur ve Kaydet
+                            </button>
+
+                            <div id="formMessage" class="form-message"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Results Column -->
+                <div class="results-section">
+                    <div class="card sticky-card">
+                        <h3>🏛️ Arketip Sınıflandırması</h3>
+                        
+                        <div id="archetypeResult" class="archetype-result">
+                            <div class="placeholder">
+                                <p>👈 Formu doldurmaya başlayın</p>
+                                <p class="small">Building ID otomatik oluşturulacak</p>
+                            </div>
+                        </div>
+
+                        <!-- Archetype Display -->
+                        <div id="archetypeDisplay" style="display: none;">
+                            <!-- Building ID -->
+                            <div class="building-id-card">
+                                <div class="id-label">🆔 Building ID:</div>
+                                <div class="id-value" id="buildingID">---</div>
+                            </div>
+
+                            <!-- Climate Info -->
+                            <div class="layer-info climate-layer">
+                                <h4>🌡️ İklim</h4>
+                                <div class="layer-content" id="climateInfo">---</div>
+                            </div>
+
+                            <!-- Morphology Info -->
+                            <div class="layer-info morphology-layer">
+                                <h4>📐 Morfoloji</h4>
+                                <div class="layer-content" id="morphologyInfo">---</div>
+                            </div>
+
+                            <!-- Envelope Info -->
+                            <div class="layer-info envelope-layer">
+                                <h4>🧱 Yapı</h4>
+                                <div class="layer-content" id="envelopeInfo">---</div>
+                            </div>
+
+                            <!-- Function Info -->
+                            <div class="layer-info function-layer">
+                                <h4>🎓 Fonksiyon</h4>
+                                <div class="layer-content" id="functionInfo">---</div>
+                            </div>
+
+                            <!-- Systems Info -->
+                            <div class="layer-info systems-layer">
+                                <h4>⚙️ Sistemler</h4>
+                                <div class="layer-content" id="systemsInfo">---</div>
+                            </div>
+
+                            <!-- Performance Card -->
+                            <div class="performance-card" id="performanceCard">
+                                <div class="performance-header">
+                                    <div class="performance-icon" id="perfIcon">⚡</div>
+                                    <div class="performance-text">
+                                        <h4>Enerji Performansı</h4>
+                                        <span class="performance-badge" id="perfBadge">ORTA</span>
+                                    </div>
+                                </div>
+                                <p class="performance-description" id="perfDesc">---</p>
+                                <p class="performance-score">
+                                    Skor: <strong id="perfScore">0</strong>/100
+                                </p>
+                            </div>
+
+                            <!-- Parameters -->
+                            <div class="parameter-preview">
+                                <h4>📊 Enerji Modelleme Parametreleri</h4>
+                                <div class="parameter-grid">
+                                    <div class="param-item">
+                                        <span class="param-label">Duvar U:</span>
+                                        <span class="param-value" id="wallU">---</span>
+                                    </div>
+                                    <div class="param-item">
+                                        <span class="param-label">Pencere U:</span>
+                                        <span class="param-value" id="windowU">---</span>
+                                    </div>
+                                    <div class="param-item">
+                                        <span class="param-label">WWR:</span>
+                                        <span class="param-value" id="wwr">---</span>
+                                    </div>
+                                    <div class="param-item">
+                                        <span class="param-label">EPW Dosyası:</span>
+                                        <span class="param-value" id="epwFile" style="font-size: 0.75rem;">---</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Card -->
+                    <div class="card info-card">
+                        <h4>ℹ️ 5 Katmanlı Sistem</h4>
+                        <ul>
+                            <li><strong>İklim:</strong> TS 825 bölgeleri</li>
+                            <li><strong>Morfoloji:</strong> Plan + Cephe + Ölçek</li>
+                            <li><strong>Yapı:</strong> Yıl + Malzeme + Renovasyon</li>
+                            <li><strong>Fonksiyon:</strong> Okul türü + Kullanım</li>
+                            <li><strong>Sistemler:</strong> HVAC tipi</li>
+                        </ul>
+                        <p class="small">Her bina benzersiz bir ID alır ve parametreler otomatik belirlenir.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p><strong>&copy; 2026 Solar-PES</strong> | Okul Binası Enerji Arketip Sistemi</p>
+            <p class="small">5-Katmanlı Sınıflandırma Metodolojisi</p>
+        </div>
+    </footer>
+
+    <script src="archetype-engine.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
