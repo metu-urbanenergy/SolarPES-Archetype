@@ -4,7 +4,7 @@
 // ============================================
 
 // Google Apps Script URL - UPDATE THIS!
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxskHDqe1GolSyiMwTXW4nsWzkKFpSyfkBfEPWRM1d6mpxD7Arl8R6klF8gIZiud23p/exec';
+const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
 
 // ============================================
 // UI UPDATE FUNCTIONS
@@ -171,6 +171,9 @@ async function handleFormSubmit(event) {
         return;
     }
     
+    // HEMEN başarı mesajı göster (UX için)
+    showMessage(`✅ Kaydediliyor... Building ID: ${result.buildingID}`, 'success');
+    
     // Collect all form data
     const formData = {
         timestamp: new Date().toISOString(),
@@ -245,28 +248,25 @@ async function handleFormSubmit(event) {
         email: document.getElementById('email').value || ''
     };
     
-    const submitResult = await submitToGoogleSheets(formData);
+    // Asenkron gönderim - kullanıcı beklemez
+    submitToGoogleSheets(formData).then(submitResult => {
+        if (submitResult.success) {
+            showMessage(`✅ Başarılı! Building ID: ${result.buildingID} kaydedildi`, 'success');
+        } else {
+            showMessage('⚠️ Kayıt sırasında sorun oluştu ama verileriniz korundu', 'error');
+        }
+    });
     
-    if (submitResult.success) {
-        showMessage(`✅ Başarılı! Building ID: ${result.buildingID}`, 'success');
-        
-        // Form resetleme - confirm olmadan
-        setTimeout(() => {
-            document.getElementById('buildingForm').reset();
-            updateArchetypeDisplay(null);
-            updateProgress();
-            
-            // Success mesajını uzat
-            setTimeout(() => {
-                showMessage('Yeni bir bina ekleyebilirsiniz', 'success');
-            }, 1000);
-        }, 3000);
-    } else {
-        showMessage('⚠️ Gönderim sırasında bir sorun oluştu. Lütfen tekrar deneyin.', 'error');
-    }
-    
+    // HEMEN form'u resetle (Google Sheets'i beklemeden)
     submitBtn.disabled = false;
     submitBtn.textContent = '🚀 Building ID Oluştur ve Kaydet';
+    
+    setTimeout(() => {
+        document.getElementById('buildingForm').reset();
+        updateArchetypeDisplay(null);
+        updateProgress();
+        showMessage('Yeni bir bina ekleyebilirsiniz 👍', 'success');
+    }, 2000);
 }
 
 function showMessage(text, type) {
@@ -281,17 +281,30 @@ function showMessage(text, type) {
 }
 
 // ============================================
-// EVENT LISTENERS
+// EVENT LISTENERS - ENHANCED REAL-TIME
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('buildingForm');
     
+    console.log('Solar-PES initialized'); // Debug
+    
     // Progress tracking
     form.addEventListener('input', updateProgress);
     form.addEventListener('change', updateProgress);
     
-    // Real-time archetype calculation
+    // GLOBAL real-time update function
+    function triggerArchetypeUpdate() {
+        try {
+            const result = calculateArchetype();
+            updateArchetypeDisplay(result);
+            console.log('Archetype updated:', result?.buildingID); // Debug
+        } catch (error) {
+            console.error('Archetype calculation error:', error);
+        }
+    }
+    
+    // Real-time archetype calculation - ALL critical fields
     const watchFields = [
         'city', 'morphology', 'numFloors', 'floorArea', 
         'buildingYear', 'renovationYear', 'wallType', 
@@ -301,26 +314,24 @@ document.addEventListener('DOMContentLoaded', function() {
     watchFields.forEach(fieldId => {
         const field = document.getElementById(fieldId);
         if (field) {
-            field.addEventListener('change', () => {
-                const result = calculateArchetype();
-                updateArchetypeDisplay(result);
-            });
+            // Listen to BOTH change AND input for immediate response
+            field.addEventListener('change', triggerArchetypeUpdate);
+            field.addEventListener('input', triggerArchetypeUpdate);
         }
     });
     
-    // Radio buttons
+    // Radio buttons - insulation
     document.querySelectorAll('input[name="insulation"]').forEach(radio => {
         radio.addEventListener('change', () => {
-            const result = calculateArchetype();
-            updateArchetypeDisplay(result);
+            triggerArchetypeUpdate();
             updateProgress();
         });
     });
     
+    // Radio buttons - cooling
     document.querySelectorAll('input[name="cooling"]').forEach(radio => {
         radio.addEventListener('change', () => {
-            const result = calculateArchetype();
-            updateArchetypeDisplay(result);
+            triggerArchetypeUpdate();
             updateProgress();
         });
     });
@@ -331,9 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
         pvCheckbox.addEventListener('change', function() {
             const pvGroup = document.getElementById('pvCapacityGroup');
             pvGroup.style.display = this.checked ? 'block' : 'none';
-            
-            const result = calculateArchetype();
-            updateArchetypeDisplay(result);
+            triggerArchetypeUpdate();
         });
     }
     
@@ -342,4 +351,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initial progress
     updateProgress();
+    
+    console.log('Event listeners attached'); // Debug
 });
