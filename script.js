@@ -1,8 +1,10 @@
 // ============================================
-// SOLAR-PES v5.0 - Main Script
+// SOLAR-PES v5.1 - Main Script
+// TÜM form verileri + Email bildirimi
 // ============================================
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxskHDqe1GolSyiMwTXW4nsWzkKFpSyfkBfEPWRM1d6mpxD7Arl8R6klF8gIZiud23p/exec';
+// ⚠️ BURAYA GOOGLE APPS SCRIPT URL'İNİ YAPIŞTIR
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYrJKpdCi94EnfRO1zFWM8xWHDiHaj0IjZ0GYsK7Y5dYTK1R1gre1_zs3JqonUDUV7/exec';
 
 // ============================================
 // MODAL & TABS
@@ -203,22 +205,155 @@ function updateProgress() {
 }
 
 // ============================================
+// FORM DATA COLLECTION - TÜM ALANLAR
+// ============================================
+
+function collectAllFormData(result) {
+    // Form elemanlarından değerleri al
+    const getValue = (id) => document.getElementById(id)?.value || '';
+    const getRadio = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || '';
+    const getCheckbox = (name) => document.querySelector(`input[name="${name}"]`)?.checked ? 'Evet' : 'Hayır';
+
+    // TÜM VERİLERİ TOPLA
+    const formData = {
+        // ========== TIMESTAMP & ID ==========
+        timestamp: new Date().toISOString(),
+        buildingID: result.buildingID,
+        
+        // ========== GENEL BİLGİLER ==========
+        buildingName: getValue('buildingName'),
+        city: getValue('city'),
+        district: getValue('district'),
+        
+        // ========== LAYER 1: CLIMATE ==========
+        climateCode: result.climate.code,
+        climateName: result.climate.name,
+        climateDescription: result.climate.description,
+        epwFile: result.climate.epw,
+        hdd18: result.climate.hdd18,
+        cdd18: result.climate.cdd18,
+        targetWallU: result.climate.targetWallU,
+        targetWindowU: result.climate.targetWindowU,
+        recommendedInsulation: result.climate.recommendedInsulation,
+        
+        // ========== LAYER 2: MORPHOLOGY ==========
+        planTypeCode: result.planType.code,
+        planTypeName: result.planType.name,
+        facadeConfigCode: result.facadeConfig.code,
+        facadeConfigName: result.facadeConfig.name,
+        heightCode: result.height.code,
+        heightName: result.height.name,
+        numFloors: getValue('numFloors'),
+        areaCode: result.area.code,
+        areaName: result.area.name,
+        floorArea: getValue('floorArea'),
+        morphology: getValue('morphology'),
+        windowType: getValue('windowType'),
+        
+        // ========== LAYER 3: ENVELOPE ==========
+        vintageCode: result.vintage.code,
+        vintageName: result.vintage.name,
+        vintagePeriod: result.vintage.period,
+        buildingYear: getValue('buildingYear'),
+        renovationYear: getValue('renovationYear'),
+        
+        // Duvar malzemesi
+        wallMaterialCode: result.wallMaterial.code,
+        wallMaterialName: result.wallMaterial.name,
+        wallType: getValue('wallType'),
+        
+        // Yalıtım
+        insulation: getRadio('insulation'),
+        insulationThickness: getValue('insulationThickness'),
+        insulationMaterial: getValue('insulationMaterial'),
+        calculatedWallU: result.calculatedWallU ? result.calculatedWallU.toFixed(2) : '',
+        
+        // Renovasyon
+        renovationCode: result.renovation.code,
+        renovationName: result.renovation.name,
+        
+        // ========== LAYER 4: FUNCTION ==========
+        educationLevelCode: result.educationLevel.code,
+        educationLevelName: result.educationLevel.name,
+        functionType: getValue('function'),
+        numStudents: getValue('numStudents'),
+        
+        // Yurt bilgisi
+        hasDormitory: getRadio('hasDormitory'),
+        
+        // Kullanım programı
+        operationModeCode: result.operationMode.code,
+        operationModeName: result.operationMode.name,
+        operationModeDescription: result.operationMode.description,
+        weekdayDays: getValue('weekdayDays'),
+        weekendUse: getRadio('weekendUse'),
+        eveningUse: getRadio('eveningUse'),
+        annualDays: result.operationMode.annualDays,
+        dailyHours: result.operationMode.dailyHours,
+        
+        // ========== LAYER 5: SYSTEMS ==========
+        systemCode: result.system.code,
+        systemName: result.system.name,
+        systemDescription: result.system.description,
+        fuelType: getValue('fuelType'),
+        cooling: getRadio('cooling'),
+        
+        // PV
+        solarPV: getCheckbox('solarPV'),
+        pvCapacity: getValue('pvCapacity'),
+        
+        // ========== PERFORMANCE ==========
+        performanceScore: result.performance.score,
+        performanceRating: result.performance.rating,
+        performanceDescription: result.performance.description,
+        performanceClass: result.performance.className,
+        
+        // ========== PARAMETERS ==========
+        wallU: result.parameters.wallU,
+        windowU: result.parameters.windowU,
+        wwr: result.parameters.wwr,
+        
+        // ========== İLETİŞİM ==========
+        contactName: getValue('contactName'),
+        email: getValue('email'),
+        
+        // ========== RECOMMENDATIONS SUMMARY ==========
+        recommendationsCount: result.recommendations ? result.recommendations.length : 0,
+        recommendationsSummary: result.recommendations 
+            ? result.recommendations.map(r => `${r.title}: ${r.action}`).join(' | ')
+            : ''
+    };
+    
+    return formData;
+}
+
+// ============================================
 // FORM SUBMISSION
 // ============================================
 
 async function submitToGoogleSheets(formData) {
     if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+        console.log('Google Script URL ayarlanmamış, veriler sadece lokalde');
+        console.log('Gönderilecek veri:', formData);
         return { success: true, local: true };
     }
+    
     try {
-        await fetch(GOOGLE_SCRIPT_URL, {
+        console.log('Google Sheets\'e gönderiliyor...', formData);
+        
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(formData)
         });
+        
+        console.log('Gönderim başarılı');
         return { success: true };
     } catch (e) {
+        console.error('Google Sheets gönderim hatası:', e);
         return { success: false, error: e.message };
     }
 }
@@ -231,7 +366,7 @@ async function handleFormSubmit(event) {
     btn.textContent = '⏳ Analiz ediliyor...';
 
     if (typeof calculateArchetype !== 'function') {
-        showMessage('❌ Sistem hatası!', 'error');
+        showMessage('❌ Sistem hatası! archetype-engine.js yüklenemedi.', 'error');
         btn.disabled = false;
         btn.textContent = '🔍 Analiz Et ve Öneri Al';
         return;
@@ -246,26 +381,29 @@ async function handleFormSubmit(event) {
         return;
     }
 
+    // UI'ı güncelle
     updateArchetypeDisplay(result);
 
-    // Collect form data
-    const formData = {
-        timestamp: new Date().toISOString(),
-        buildingID: result.buildingID,
-        buildingName: document.getElementById('buildingName')?.value || '',
-        city: document.getElementById('city')?.value || '',
-        district: document.getElementById('district')?.value || '',
-        // ... add more fields as needed
-        performanceScore: result.performance.score,
-        performanceRating: result.performance.rating
-    };
-
-    await submitToGoogleSheets(formData);
+    // TÜM form verilerini topla
+    const formData = collectAllFormData(result);
     
-    // Switch to current tab and open modal
+    // Google Sheets'e gönder
+    btn.textContent = '📤 Kaydediliyor...';
+    const submitResult = await submitToGoogleSheets(formData);
+    
+    if (submitResult.local) {
+        console.log('Lokal mod - veriler konsola yazıldı');
+    }
+    
+    // Modal aç ve mesaj göster
     switchTab('current');
     openModal();
-    showMessage(`✅ Analiz tamamlandı: ${result.buildingID}`, 'success');
+    
+    if (submitResult.success) {
+        showMessage(`✅ Analiz tamamlandı ve kaydedildi: ${result.buildingID}`, 'success');
+    } else {
+        showMessage(`⚠️ Analiz tamamlandı ama kaydetme başarısız: ${submitResult.error}`, 'error');
+    }
 
     btn.disabled = false;
     btn.textContent = '🔍 Analiz Et ve Öneri Al';
@@ -285,9 +423,14 @@ function resetForm() {
     if (form) {
         form.reset();
         updateProgress();
-        document.getElementById('insulationDetails').style.display = 'none';
-        document.getElementById('dormitorySection').style.display = 'none';
-        document.getElementById('pvCapacityGroup').style.display = 'none';
+        
+        const insulationDetails = document.getElementById('insulationDetails');
+        const dormitorySection = document.getElementById('dormitorySection');
+        const pvCapacityGroup = document.getElementById('pvCapacityGroup');
+        
+        if (insulationDetails) insulationDetails.style.display = 'none';
+        if (dormitorySection) dormitorySection.style.display = 'none';
+        if (pvCapacityGroup) pvCapacityGroup.style.display = 'none';
     }
 }
 
@@ -297,7 +440,10 @@ function resetForm() {
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('buildingForm');
-    if (!form) return;
+    if (!form) {
+        console.error('Form bulunamadı!');
+        return;
+    }
 
     // Setup
     setupConditionalFields();
@@ -328,5 +474,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     updateProgress();
-    console.log('SOLAR-PES v5.0 initialized');
+    console.log('SOLAR-PES v5.1 initialized - Tüm veriler Google Sheets\'e gönderilecek');
 });
