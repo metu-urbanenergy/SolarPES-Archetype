@@ -4,7 +4,7 @@
 // ============================================
 
 // ⚠️ BURAYA GOOGLE APPS SCRIPT URL'İNİ YAPIŞTIR
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYrJKpdCi94EnfRO1zFWM8xWHDiHaj0IjZ0GYsK7Y5dYTK1R1gre1_zs3JqonUDUV7/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8OjZAN1g2EI00VDJyB42uf3VlizzPGvhJSnuSkMNAlCHGVl1Hge9A2glx0e86fIOy/exec';
 
 // ============================================
 // MODAL & TABS
@@ -80,6 +80,105 @@ function updateArchetypeDisplay(result) {
     if (!result) return;
 
     document.getElementById('buildingID').textContent = result.buildingID;
+    
+    // ============================================
+    // CLUSTER DISPLAY
+    // ============================================
+    const clusterContainer = document.getElementById('clusterInfo');
+    if (clusterContainer && result.cluster) {
+        const c = result.cluster;
+        clusterContainer.innerHTML = `
+            <div class="cluster-card">
+                <div class="cluster-header">
+                    <span class="cluster-label">CLUSTER ID</span>
+                    <span class="cluster-id">${c.id}</span>
+                </div>
+                
+                <div class="cluster-breakdown">
+                    <div class="cluster-item" style="border-color: ${c.envelope.color}">
+                        <span class="cluster-code" style="background: ${c.envelope.color}">${c.envelope.code}</span>
+                        <span class="cluster-name">${c.envelope.name}</span>
+                    </div>
+                    <div class="cluster-item" style="border-color: ${c.system.color}">
+                        <span class="cluster-code" style="background: ${c.system.color}">${c.system.code}</span>
+                        <span class="cluster-name">${c.system.name}</span>
+                    </div>
+                    <div class="cluster-item" style="border-color: ${c.scale.color}">
+                        <span class="cluster-code" style="background: ${c.scale.color}">${c.scale.code}</span>
+                        <span class="cluster-name">${c.scale.name}</span>
+                    </div>
+                </div>
+                
+                <div class="cluster-priority" style="background: ${c.priority.color}15; border-color: ${c.priority.color}">
+                    <span class="priority-level">Öncelik: ${c.priority.name}</span>
+                    <span class="priority-action">${c.priority.action}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // ============================================
+    // RETROFIT SCENARIOS DISPLAY
+    // ============================================
+    const scenariosContainer = document.getElementById('retrofitScenarios');
+    if (scenariosContainer && result.cluster?.retrofitScenarios) {
+        const scenarios = result.cluster.retrofitScenarios;
+        scenariosContainer.innerHTML = `
+            <h4 style="margin-bottom: 12px; color: #1b4332;">🛤️ Retrofit Senaryoları</h4>
+            <div class="scenarios-grid">
+                ${scenarios.map(s => `
+                    <div class="scenario-card" style="border-color: ${s.color}">
+                        <div class="scenario-header" style="background: ${s.color}">
+                            <span>${s.name}</span>
+                        </div>
+                        <div class="scenario-body">
+                            <div class="scenario-cluster">${s.clusterID}</div>
+                            ${s.cost > 0 ? `
+                                <div class="scenario-stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Maliyet</span>
+                                        <span class="stat-value">${s.costDisplay}</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Tasarruf</span>
+                                        <span class="stat-value">%${s.savings}</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">CO₂</span>
+                                        <span class="stat-value">-${s.co2Reduction}t/yıl</span>
+                                    </div>
+                                </div>
+                                <div class="scenario-action">${s.action || ''}</div>
+                            ` : `
+                                <div class="scenario-current">Mevcut durum</div>
+                            `}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // ============================================
+    // SIMULATION FILES DISPLAY
+    // ============================================
+    const simFilesContainer = document.getElementById('simulationFiles');
+    if (simFilesContainer && result.cluster?.simulationFiles) {
+        const files = result.cluster.simulationFiles;
+        simFilesContainer.innerHTML = `
+            <h4 style="margin-bottom: 12px; color: #1b4332;">📚 Simülasyon Dosyaları</h4>
+            <div class="sim-files-list">
+                ${files.map(f => `
+                    <div class="sim-file-item">
+                        <span class="file-icon">📄</span>
+                        <span class="file-name">${f.name}</span>
+                        <span class="file-tag" style="background: ${f.color}">${f.type}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+    }
 
     // Climate
     document.getElementById('climateInfo').innerHTML = `
@@ -321,7 +420,37 @@ function collectAllFormData(result) {
         recommendationsCount: result.recommendations ? result.recommendations.length : 0,
         recommendationsSummary: result.recommendations 
             ? result.recommendations.map(r => `${r.title}: ${r.action}`).join(' | ')
-            : ''
+            : '',
+        
+        // ========== CLUSTER DATA ==========
+        clusterID: result.clusterID || '',
+        envelopeCluster: result.cluster?.envelope?.code || '',
+        envelopeClusterName: result.cluster?.envelope?.name || '',
+        systemCluster: result.cluster?.system?.code || '',
+        systemClusterName: result.cluster?.system?.name || '',
+        scaleCluster: result.cluster?.scale?.code || '',
+        scaleClusterName: result.cluster?.scale?.name || '',
+        
+        // Priority
+        clusterPriorityLevel: result.cluster?.priority?.level || '',
+        clusterPriorityLabel: result.cluster?.priority?.label || '',
+        clusterPriorityReason: result.cluster?.priority?.reason || '',
+        clusterPriorityAction: result.cluster?.priority?.action || '',
+        clusterPriorityImpact: result.cluster?.priority?.impact || '',
+        clusterPriorityCost: result.cluster?.priority?.cost || '',
+        clusterPriorityROI: result.cluster?.priority?.roi || '',
+        
+        // Retrofit scenarios summary
+        retrofitScenariosCount: result.cluster?.retrofitScenarios?.length || 0,
+        retrofitScenariosSummary: result.cluster?.retrofitScenarios
+            ? result.cluster.retrofitScenarios.filter(s => s.type !== 'baseline')
+                .map(s => `${s.name}: ₺${(s.cost || 0).toLocaleString()}, %${s.savings} tasarruf, -${s.co2Reduction}t CO₂`)
+                .join(' | ')
+            : '',
+        
+        // Simulation files
+        simFileBaseline: result.cluster?.simulationFiles?.baseline || '',
+        simFileFull: result.cluster?.simulationFiles?.full || ''
     };
     
     return formData;
